@@ -1,10 +1,10 @@
 const {  CheckValidationFormUser } = require('../config/Checker');
-const { CreateDataUser, DeleteDataUser, DataUser, EditDataUser, DataUserPeminjam, DataUserPengemudi } = require('../controllers/Admin/KelolaUser');
+const { CreateDataUser, DeleteDataUser, DataUser, EditDataUser, DataUserPeminjam, DataUserPengemudi, DataUserSearch } = require('../controllers/Admin/KelolaUser');
 const { DataRequest, CreateDataRequest, EditDataRequest, DeleteDataRequest, DataRequestTotalitas, DataRequestSelesai, DataRequestTolak, DataRequestBatal } = require('../controllers/Admin/KelolaPermintaan');
 const { ValidRoleAdmin, ValidUserSess, ValidRolePeminjam, ValidRoleDriver } = require('../controllers/Auth');
 const { DataSesiPenggunaan, CreateDataSesiPenggunaan, EditDataSesiPenggunaan, DeleteDataSesiPenggunaan, DataSesiPenggunaanSelesai } = require('../controllers/Admin/KelolaSesiPenggunaan');
 const { DataAssetKendaraan,CreateDataAssetKendaraan, EditDataAssetKendaraan, DeleteDataAssetKendaraan, DataAssetSiap, DataAssetDetail, DataAssetDetailEtc } = require('../controllers/Admin/KelolaAssetKendaraan');
-const {HandleUploadAsset} = require('../config/UploadImage');
+const {HandleUploadAsset, HandleUploadStrukBBM} = require('../config/UploadImage');
 const { DataDashboard, CreateDataVisualPie, DeleteDataVisualPie, DataVisualPie } = require('../controllers/Admin/Dashboard');
 const { DataProfile } = require('../controllers/Admin/KelolaProfil');
 const { DataJabatan } = require('../controllers/Admin/KelolaJabatan');
@@ -49,17 +49,18 @@ router.post("/admin/visualpie/add",ValidRoleAdmin,ValidUserSess,CreateDataVisual
 router.post("/admin/request/add",ValidRoleAdmin,ValidUserSess,CreateDataRequest )
 router.post("/admin/asset/add",ValidRoleAdmin,ValidUserSess,HandleUploadAsset,CreateDataAssetKendaraan )
 router.post("/admin/sesiguna/add",ValidRoleAdmin,ValidUserSess,CreateDataSesiPenggunaan )
+router.post("/admin/user/search",ValidRoleAdmin,ValidUserSess,DataUserSearch )
 
 router.put("/peminjam/request/edit/:_id",ValidRolePeminjam,ValidUserSess, PeminjamEditDataRequest )
 router.put("/peminjam/request/cancel/:_id",ValidRolePeminjam,ValidUserSess, PeminjamCancelDataRequest )
 router.put("/driver/perjalanan/:_id",ValidRoleDriver,ValidUserSess,DriverPilihPerjalanan)
 router.put("/driver/perjalanan/tolak/:_id",ValidRoleDriver,ValidUserSess,DriverTolakPerjalanan)
-router.put("/driver/sesiguna/edit/:_id",ValidRoleDriver,ValidUserSess, EditDataKeberangkatan )
+router.put("/driver/sesiguna/edit/:_id",ValidRoleDriver,ValidUserSess,HandleUploadStrukBBM, EditDataKeberangkatan )
 
 router.put("/admin/user/edit/:_id",ValidRoleAdmin,ValidUserSess,CheckValidationFormUser, EditDataUser )
 router.put("/admin/request/edit/:_id",ValidRoleAdmin,ValidUserSess, EditDataRequest )
 router.put("/admin/asset/edit/:_id",ValidRoleAdmin,ValidUserSess, HandleUploadAsset,EditDataAssetKendaraan )
-router.put("/admin/sesiguna/edit/:_id",ValidRoleAdmin,ValidUserSess, EditDataSesiPenggunaan )
+router.put("/admin/sesiguna/edit/:_id",ValidRoleAdmin,ValidUserSess,HandleUploadStrukBBM, EditDataSesiPenggunaan )
 
 router.delete("/admin/user/delete/:_id",ValidUserSess,ValidRoleAdmin,DeleteDataUser )
 router.delete("/admin/request/delete/:_id",ValidRoleAdmin,ValidUserSess,DeleteDataRequest )

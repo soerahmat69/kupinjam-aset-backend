@@ -3,7 +3,7 @@ const { ApiResponse } = require("../../config/ApiResponse");
 const { connectToDatabase } = require("../../config/database");
 const moment = require("moment");
 const { ConsoleMessage } = require("puppeteer");
-
+ 
 module.exports = {
   DataDashboard: async (req, res) => {
     try {
@@ -112,6 +112,7 @@ module.exports = {
           },
           {
             $match: {
+              status_sesi:"selesai",
               "action_date": {
                 $lte: moment().format("YYYY-MM-DD"),
                 $gte: moment()

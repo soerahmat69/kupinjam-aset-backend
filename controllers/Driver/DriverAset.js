@@ -16,7 +16,7 @@ module.exports={
             _userID: cekUserValid._id,
             keperluan: dataPesan.keperluan,
             waktu_jam: dataPesan.jam,
-            status: "pending",
+            status: "proses",
             waktu_tanggal: new Date(dataPesan.tanggal).toISOString().slice(0, 10),
             action_date: moment().format("YYYY-MM-DD"),
           };
@@ -33,7 +33,7 @@ module.exports={
           const client = new Client()
           const db = await connectToDatabase();
           const cekPinjam = db.collection("request_pinjam");
-          const cekPinjamValid = await cekPinjam.findOne({ _userID: new ObjectId(req.session.userID.toString()),status:"pending" });
+          const cekPinjamValid = await cekPinjam.findOne({ _userID: new ObjectId(req.session.userID.toString()),status:"proses" });
           if (cekPinjamValid) {
             return res
             .status(400)
@@ -46,7 +46,7 @@ module.exports={
             keperluan: req.body.keperluan,
             waktu_jam: req.body.waktu_jam,
             waktu_pinjam: req.body.waktu_pinjam,
-            status: "pending",
+            status: "proses",
             waktu_tanggal: new Date(req.body.waktu_tanggal)
               .toISOString()
               .slice(0, 10),
@@ -82,7 +82,7 @@ module.exports={
             },
             {
               $match: {
-                status: "pending",
+                status: "proses",
                 _userID: new ObjectId(req.session.userID.toString())
               },
             },
@@ -217,7 +217,7 @@ module.exports={
             keperluan: req.body.keperluan,
             waktu_jam: req.body.waktu_jam,
             waktu_pinjam:req.body.waktu_pinjam,
-            status: "pending",
+            status: "proses",
             waktu_tanggal: new Date(req.body.waktu_tanggal)
               .toISOString()
               .slice(0, 10),

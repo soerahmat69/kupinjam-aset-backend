@@ -2,6 +2,7 @@ const { ObjectId, Timestamp } = require("mongodb");
 const { ApiResponse } = require("../../config/ApiResponse");
 const { connectToDatabase } = require("../../config/database");
 const fs = require("fs");
+const moment = require("moment");
 const { count } = require("console");
 const { param } = require("../../routes/routes");
 module.exports = {
@@ -17,18 +18,17 @@ module.exports = {
 
       await result.forEach((res) => {
         let count = 0;
-        let status = null
+        let status = null;
 
         result_sesi.find((ressi) => {
           if (res._id.toString() === ressi._assetID.toString()) {
-           count += 1
-           if ( ressi.status_sesi === "perjalanan") {
-            status = "perjalanan"
-           }
-           if (  ressi.status_sesi === "rusak") {
-            status = "rusak"
-           }
-      
+            count += 1;
+            if (ressi.status_sesi === "perjalanan") {
+              status = "perjalanan";
+            }
+            if (ressi.status_sesi === "rusak") {
+              status = "rusak";
+            }
           }
         });
         returnFinal.push({
@@ -246,6 +246,7 @@ module.exports = {
         km: parseInt(req.body.km),
         bbm: req.body.bbm,
         assetPath: req.files.assetPath[0].filename,
+        create_at: moment().format("YYYY-MM-DD"),
       };
       const db = await connectToDatabase();
       const collection = db.collection("asset_kendaraan");
@@ -275,14 +276,15 @@ module.exports = {
     }
   },
   EditDataAssetKendaraan: async (req, res) => {
-    console.log(req.files);
     const data = {
       nama_kendaraan: req.body.nama_kendaraan,
       plat_nomor: req.body.plat_nomor,
       km: parseInt(req.body.km),
       bbm: parseInt(req.body.bbm),
-      assetPath: req.files.assetPath[0].filename,
     };
+    if (req.files && req.files.assetPath && req.files.assetPath.length > 0) {
+      data.assetPath = req.files.assetPath[0].filename;
+    }
     try {
       const db = await connectToDatabase();
       const collection = db.collection("asset_kendaraan");
@@ -310,11 +312,14 @@ module.exports = {
             )
           );
       }
-      const delFileOld = await collection.findOne({
-        _id: new ObjectId(req.params._id),
-      });
-      if (delFileOld.assetPath) {
-        fs.unlinkSync("./etc/uploads/" + delFileOld.assetPath);
+      if (data.assetPath) {
+       
+        const delFileOld = await collection.findOne({
+          _id: new ObjectId(req.params._id),
+        });
+        if (delFileOld.assetPath) {
+          fs.unlinkSync("./etc/uploads/" + delFileOld.assetPath);
+        }
       }
       await collection.updateOne(
         { _id: new ObjectId(req.params._id) },

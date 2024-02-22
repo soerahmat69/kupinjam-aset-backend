@@ -55,10 +55,36 @@ module.exports = {
         },
       ])
       .toArray();
+      const result_daftar_peminjaman = await asset.aggregate([{
+        
+          $lookup: {
+            from: "asset_kendaraan",
+            localField: "_assetID",
+            foreignField: "_id",
+            as: "asset",
+          },
+      
+      },{
+        
+          $lookup: {
+            from: "request_pinjam",
+            localField: "_requestID",
+            foreignField: "_id",
+            as: "request",
+          },
+        
+      },{$sort:{_id:-1}},{$match:{
+        status_sesi:{$in:["perjalanan","proses"]}
+      }},{
+        $project:{
+          asset:{nama_kendaraan:1,plat_nomor:1,assetPath:1},
+          request:{waktu_tanggal:1,waktu_pinjam:1}
+        }
+      }]).toArray()
     
       return res.status(200).send(
         ApiResponse("Berhasil mendapatkan data", true, 200, 
-        result_top_list
+        [result_top_list,result_daftar_peminjaman]
         )
       );
     } catch (error) {
@@ -72,7 +98,7 @@ module.exports = {
       const cekPinjam = db.collection("request_pinjam");
       const cekPinjamValid = await cekPinjam.findOne({
         _userID: new ObjectId(req.session.userID.toString()),
-        status: "pending",
+        status: "proses",
       });
       if (cekPinjamValid) {
         return res
@@ -95,7 +121,7 @@ module.exports = {
         keperluan: req.body.keperluan,
         waktu_jam: req.body.waktu_jam,
         waktu_pinjam: req.body.waktu_pinjam,
-        status: "pending",
+        status: "proses",
         waktu_tanggal: new Date(req.body.waktu_tanggal)
           .toISOString()
           .slice(0, 10),
@@ -133,7 +159,7 @@ module.exports = {
           },
           {
             $match: {
-              status: "pending",
+              status: "proses",
               _userID: new ObjectId(req.session.userID.toString()),
             },
           },
@@ -278,7 +304,7 @@ module.exports = {
         keperluan: req.body.keperluan,
         waktu_jam: req.body.waktu_jam,
         waktu_pinjam: req.body.waktu_pinjam,
-        status: "pending",
+        status: "proses",
         waktu_tanggal: new Date(req.body.waktu_tanggal)
           .toISOString()
           .slice(0, 10),

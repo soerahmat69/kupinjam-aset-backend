@@ -1,5 +1,6 @@
 const { ObjectId, Timestamp } = require("mongodb");
 const { ApiResponse } = require("../../config/ApiResponse");
+const fs = require("fs");
 const { connectToDatabase } = require("../../config/database");
 const moment = require("moment");
 module.exports = {
@@ -19,7 +20,7 @@ module.exports = {
           },
           {
             $match: {
-              status: "pending",
+              status: "proses",
             },
           },
           {
@@ -45,6 +46,9 @@ module.exports = {
               foreignField: "_id",
               as: "pengemudi",
             },
+          },
+          {
+            $sort: { _id: -1 },
           },
           {
             $project: {
@@ -107,6 +111,7 @@ module.exports = {
               as: "pengemudi",
             },
           },
+          { $sort: { _id: -1 } },
           {
             $project: {
               _userID: 0,
@@ -254,11 +259,12 @@ module.exports = {
         keperluan: req.body.keperluan,
         waktu_jam: req.body.waktu_jam,
         waktu_pinjam: req.body.waktu_pinjam,
-        status: "pending",
+        status: "proses",
         waktu_tanggal: new Date(req.body.waktu_tanggal)
           .toISOString()
           .slice(0, 10),
         action_date: moment().format("YYYY-MM-DD"),
+        create_at: moment().format("YYYY-MM-DD"),
       };
       const db = await connectToDatabase();
       const collection = db.collection("request_pinjam");
@@ -321,6 +327,12 @@ module.exports = {
         _requestID: new ObjectId(req.params._id),
       });
       if (get_sesi) {
+        if (
+          get_sesi.strukPath &&
+          fs.existsSync(`./etc/uploads/${get_sesi.strukPath}`)
+        ) {
+          fs.unlinkSync("./etc/uploads/" + get_sesi.strukPath);
+        }
         await sesi_collection.deleteOne({
           _id: new ObjectId(get_sesi._id.toString()),
         });
@@ -386,7 +398,7 @@ module.exports = {
         .toArray();
 
       const result_totalitas_pending = await collection.countDocuments({
-        status: "pending",
+        status: "proses",
       });
       const result_totalitas_setujui = await collection.countDocuments({
         status: "setuju",

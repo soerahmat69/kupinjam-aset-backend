@@ -14,7 +14,7 @@ const storage = multer.diskStorage({
   },
 });
 const fileFilter = (req, file, cb) => {
-  if (file.mimetype === "image/jpeg" || file.mimetype === "image/png") {
+  if (file.mimetype === "image/jpeg" || file.mimetype === "image/png" || file.mimetype === "image/jpg") {
     cb(null, true);
   } else {
     cb(new Error("error file type"), false);
@@ -29,10 +29,29 @@ const upload = multer({
   limits: limits,
 });
 const asset = upload.fields([{name:"assetPath"}]);
+const StrukBBM = upload.fields([{name:"strukPath"}]);
 
 module.exports = {
   HandleUploadAsset: async (req, res, next) => {
     asset(req, res, function (err) {
+      if (err) {
+        return res
+        .status(400)
+        .send(
+          ApiResponse(
+            "Waduh wir " + err,
+            false,
+            400,
+            []
+          )
+        );
+    }
+    next()
+    });
+  
+  },
+  HandleUploadStrukBBM: async (req, res, next) => {
+    StrukBBM(req, res, function (err) {
       if (err) {
         return res
         .status(400)
